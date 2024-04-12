@@ -1,6 +1,7 @@
 // Part of ImGui Bundle - MIT License - Copyright (c) 2022-2024 Pascal Thomet - https://github.com/pthom/imgui_bundle
 #pragma once
 
+#include "hello_imgui/hello_imgui_font.h"
 #include "imgui.h"
 
 #include <functional>
@@ -18,6 +19,7 @@ namespace ImGuiMd
         int maxHeaderLevel = 2;
         float sizeDiffBetweenLevels = 2.f;
         float regularSize = 16.f;
+        std::vector<HelloImGui::ImWcharPair> glyphRanges = {};
     };
 
 

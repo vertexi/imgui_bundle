@@ -167,10 +167,17 @@ assets/
                         // we shall not load the icons for all the fonts variants, since the font atlas
                         // texture might end up too big to fit in the GPU.
                         ImFont * font;
+                        HelloImGui::FontLoadingParams fontLoadingParams;
+                        fontLoadingParams.glyphRanges = mMarkdownFontOptions.glyphRanges;
+                        fontLoadingParams.mergeFontAwesome = true;
                         if (markdownTextStyle.IsDefault())
-                            font = HelloImGui::LoadFontTTF_WithFontAwesomeIcons(fontFile, fontSize);
-                        else
-                            font = HelloImGui::LoadFontTTF(fontFile, fontSize);
+                        {
+                            font = HelloImGui::LoadFont(fontFile, fontSize, fontLoadingParams);
+                        }
+                        else {
+                            fontLoadingParams.mergeFontAwesome = false;
+                            font = HelloImGui::LoadFont(fontFile, fontSize, fontLoadingParams);
+                        }
 
                         if (font == nullptr)
                         {
