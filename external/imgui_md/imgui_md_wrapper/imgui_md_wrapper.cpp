@@ -28,29 +28,6 @@ namespace ImGuiMd
 
     namespace ImGuiMdFonts
     {
-        struct MarkdownEmphasis
-        {
-            bool italic = false;
-            bool bold = false;
-
-            bool operator==(const MarkdownEmphasis& rhs) const {
-                return (rhs.italic == italic) && (rhs.bold == bold);
-            }
-
-            static std::vector<MarkdownEmphasis> AllEmphasisVariants()
-            {
-                return {
-                    { false, false },
-                    { false, true },
-                    { true, false },
-                    { true, true },
-                };
-            }
-
-            bool IsDefault() { return  (!italic && !bold); }
-        };
-
-
         float MarkdownFontOptions_FontSize(const MarkdownFontOptions &self, int headerLevel)
         {
             if (headerLevel <= 0)
@@ -162,7 +139,15 @@ assets/
                         markdownTextStyle.headerLevel = header_level;
 
                         float fontSize = MarkdownFontOptions_FontSize(mMarkdownFontOptions, header_level);
-                        std::string fontFile = MarkdownFontOptions_FontFilename(mMarkdownFontOptions, emphasisVariant);
+                        auto markdownEmphasisTofontMemoryEmpty = mMarkdownFontOptions.markdownEmphasisTofontMemory.empty();
+                        std::string fontFile;
+                        fontMemoryAndSize fontData;
+                        if (markdownEmphasisTofontMemoryEmpty)
+                        {
+                            fontFile = MarkdownFontOptions_FontFilename(mMarkdownFontOptions, emphasisVariant);
+                        } else {
+                            fontData = mMarkdownFontOptions.markdownEmphasisTofontMemory[emphasisVariant];
+                        }
 
                         // we shall not load the icons for all the fonts variants, since the font atlas
                         // texture might end up too big to fit in the GPU.
@@ -170,13 +155,13 @@ assets/
                         HelloImGui::FontLoadingParams fontLoadingParams;
                         fontLoadingParams.glyphRanges = mMarkdownFontOptions.glyphRanges;
                         fontLoadingParams.mergeFontAwesome = true;
-                        if (markdownTextStyle.IsDefault())
+                        if (markdownEmphasisTofontMemoryEmpty)
                         {
+                            if (!markdownTextStyle.IsDefault()) fontLoadingParams.mergeFontAwesome = false;
                             font = HelloImGui::LoadFont(fontFile, fontSize, fontLoadingParams);
-                        }
-                        else {
-                            fontLoadingParams.mergeFontAwesome = false;
-                            font = HelloImGui::LoadFont(fontFile, fontSize, fontLoadingParams);
+                        } else {
+                            if (!markdownTextStyle.IsDefault()) fontLoadingParams.mergeFontAwesome = false;
+                            font = HelloImGui::LoadFont((void *)fontData.fontData, fontData.fontDataSize, fontSize, fontLoadingParams);
                         }
 
                         if (font == nullptr)

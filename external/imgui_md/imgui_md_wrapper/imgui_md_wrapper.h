@@ -5,6 +5,7 @@
 #include "imgui.h"
 
 #include <functional>
+#include <unordered_map>
 #include <vector>
 #include <string>
 #include <memory>
@@ -13,6 +14,46 @@
 
 namespace ImGuiMd
 {
+    namespace ImGuiMdFonts
+    {
+        struct MarkdownEmphasis
+        {
+            bool italic = false;
+            bool bold = false;
+
+            bool operator==(const MarkdownEmphasis& rhs) const {
+                return (rhs.italic == italic) && (rhs.bold == bold);
+            }
+
+            static std::vector<MarkdownEmphasis> AllEmphasisVariants()
+            {
+                return {
+                    { false, false },
+                    { false, true },
+                    { true, false },
+                    { true, true },
+                };
+            }
+
+            bool IsDefault() { return  (!italic && !bold); }
+        };
+
+        struct MarkdownEmphasisHash {
+            size_t operator()(const MarkdownEmphasis& k) const {
+                return ((k.bold << 1) + k.italic);
+            }
+        };
+    }
+}
+
+namespace ImGuiMd
+{
+    typedef const unsigned int* fontMemory;
+    struct fontMemoryAndSize
+    {
+        fontMemory fontData;
+        int fontDataSize;
+    };
     struct MarkdownFontOptions
     {
         std::string fontBasePath = "fonts/Roboto/Roboto";
@@ -20,6 +61,7 @@ namespace ImGuiMd
         float sizeDiffBetweenLevels = 2.f;
         float regularSize = 16.f;
         std::vector<HelloImGui::ImWcharPair> glyphRanges = {};
+        std::unordered_map<ImGuiMdFonts::MarkdownEmphasis, fontMemoryAndSize, ImGuiMdFonts::MarkdownEmphasisHash> markdownEmphasisTofontMemory = {};
     };
 
 
